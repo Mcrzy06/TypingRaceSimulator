@@ -146,8 +146,7 @@ public class Typist
      *
      * @return true if burnt out
      */
-    public boolean isBurntOut()
-    {
+    public boolean isBurntOut() {
         return hasBurnt;
     }
 
