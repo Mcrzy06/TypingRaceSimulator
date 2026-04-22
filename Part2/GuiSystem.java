@@ -1,17 +1,23 @@
 import javax.swing.*;
+import java.awt.*;
 
 public class GuiSystem {
-    public static void startRaceGUI(){
-        JLabel label = new JLabel();
-        label.setText("Test stuff");
+    JFrame frame = new JFrame();
+    TypingRace race;
+    Typist[] typists;
+    String passageText;
+    private int realAnswer;
+    JLabel label;
+    JProgressBar[] typistProgress;
 
 
-        JFrame frame = new JFrame();
+    public GuiSystem() {
+        frame.setSize(250,250);
         frame.setVisible(true);
-        frame.setSize(250, 250);
-        frame.setTitle("Typist simulator");
+        frame.setLayout(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(label);
+        frame.setTitle("Typist simulator game");
+
     }
 
     public static void main(String[] args){
@@ -87,11 +93,32 @@ public class GuiSystem {
         boolean caffine = caffeineMode.isSelected();
         boolean nightMode = nightShift.isSelected();
 
-        char[] baseSymbols = {'❶', '❷','❸','❹','❺','❻'};
+        char[] baseSymbols = {'❶', '❷','❸','❹','❺','❻'}; // base symbols for each typist will be able to change later
         typists = new Typist[realNumOfSeats];
 
         for(int i =0;i< realNumOfSeats;i++){
             typists[i] = new Typist(baseSymbols[i], "Typist "+ (i+1),0.67);
+
+            String[] typingStyleOptions = {" Touch Typist, Hunt & Peck, Phone Thumbs", "Voice-to-Text"};
+            int typingStyle = JOptionPane.showOptionDialog(null,"please pick a typing style", "Customisation", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE,null,typingStyleOptions,typingStyleOptions[0]);
+            if(typingStyle == 0){
+                typists[i].setAccuracy(0.95);
+            }
+            else if (typingStyle == 1) {
+                typists[i].setAccuracy(0.69);
+            }
+            else if (typingStyle == 2) {
+                typists[i].setAccuracy(0.50);
+
+            }
+            else if (typingStyle == 3) {
+                typists[i].setAccuracy(0.75);
+            }
+            else {
+                System.out.println("No typing style selected , default of 0.67 applied");
+            }
+            // i need to add a burnout change too *Important
+
         }
         race = new TypingRace(realAnswer);
         for(int i =0;i < typists.length;i++) {
@@ -113,10 +140,21 @@ public class GuiSystem {
         }
         Timer clock = new Timer(200, e -> {
             boolean finished = race.turn();
+            for(int i = 0;i<typists.length;i++){
+                typistProgress[i].setValue(typists[i].getProgress());
+            }
             if (finished == true) {
                 ((Timer) e.getSource()).stop();
+                for(int i = 0;i < typists.length;i++){
+                    if(typists[i].getProgress() >= realAnswer){
+                        label.setText("the winner is: " + typists[i].getName());
+                        frame.repaint();
+                        break;
+                    }
+                }
             }
         });
+        mainRace();
         clock.start();
     }
 
@@ -125,6 +163,29 @@ public class GuiSystem {
         frame.setLayout(new BorderLayout());
 
         JPanel panel = new JPanel();
-        frame.add(panel);
+        label = new JLabel(passageText);
+        panel.add(label);
+        frame.add(panel,BorderLayout.NORTH);
+        JPanel keyboardPanel = new JPanel();
+        keyboardPanel.setBackground(Color.black);
+        keyboardPanel.setPreferredSize(new Dimension(250,83));
+        frame.add(keyboardPanel, BorderLayout.SOUTH);
+
+
+        JPanel raceStuff = new JPanel();
+        raceStuff.setLayout(new GridLayout(1,typists.length));
+        typistProgress = new JProgressBar[typists.length];
+        for(int i = 0;i<typists.length;i++){
+            typistProgress[i] = new JProgressBar(JProgressBar.VERTICAL, realAnswer);
+            typistProgress[i].setString(typists[i].getName());
+            typistProgress[i].setStringPainted(true);
+            raceStuff.add(typistProgress[i]);
+        }
+        frame.add(raceStuff, BorderLayout.CENTER);
+
+        frame.revalidate();
+        frame.repaint();
     }
+
+
 }
