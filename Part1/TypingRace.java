@@ -25,12 +25,15 @@ public class TypingRace
 
     // Accuracy thresholds for mistype and burnout events
     // (Ty tuned these values "by feel". They may need adjustment.)
-    private static final double MISTYPE_BASE_CHANCE = 0.3;
+    private double MISTYPE_BASE_CHANCE = 0.3;
     private int SLIDE_BACK_AMOUNT   = 2;
     private int turnCount = 0;
     private boolean caffeineActivated = false;
     private int BURNOUT_DURATION  = 3;
 
+    public void setMISTYPE_BASE_CHANCE(double newBaseChange){
+        MISTYPE_BASE_CHANCE = newBaseChange;
+    }
     public void setCaffeineActivated(){
         caffeineActivated = true;
     }

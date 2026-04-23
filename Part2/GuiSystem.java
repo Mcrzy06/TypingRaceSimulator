@@ -12,7 +12,7 @@ public class GuiSystem {
 
 
     public GuiSystem() {
-        frame.setSize(250,250);
+        frame.setSize(250, 250);
         frame.setVisible(true);
         frame.setLayout(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -20,18 +20,19 @@ public class GuiSystem {
 
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         GuiSystem gui = new GuiSystem();
         gui.startRaceGUI();
 
     }
+
     public void startRaceGUI() {
         JButton startButton = new JButton("START");
         startButton.addActionListener(e -> setupScreen());
-        startButton.setBounds(0,83,125,15);
+        startButton.setBounds(0, 83, 125, 15);
 
         JPanel startPanel = new JPanel();
-        startPanel.setBounds(0,83,250,83);
+        startPanel.setBounds(0, 83, 250, 83);
         frame.add(startPanel);
         startPanel.add(startButton);
     }
@@ -48,7 +49,7 @@ public class GuiSystem {
 
         if (input == 3) {
             answer = JOptionPane.showInputDialog("Enter your Custom passage: ");
-            while ( answer == null || answer.isEmpty()){
+            while (answer == null || answer.isEmpty()) {
                 answer = JOptionPane.showInputDialog("Enter your Custom passage: ");
             }
             passageText = answer;
@@ -86,67 +87,82 @@ public class GuiSystem {
         submitButton.setText("Submit");
         //submitButton.addActionListener(e -> )
 
-        Object[] difficultyStuff = {"Tick Difficulty modifiers:",checkBox,caffeineMode,nightShift};
-        JOptionPane.showConfirmDialog(null,difficultyStuff,"Modifiers", JOptionPane.OK_CANCEL_OPTION);
+        Object[] difficultyStuff = {"Tick Difficulty modifiers:", checkBox, caffeineMode, nightShift};
+        JOptionPane.showConfirmDialog(null, difficultyStuff, "Modifiers", JOptionPane.OK_CANCEL_OPTION);
 
         boolean autoCorrect = checkBox.isSelected();
         boolean caffine = caffeineMode.isSelected();
         boolean nightMode = nightShift.isSelected();
 
-        char[] baseSymbols = {'❶', '❷','❸','❹','❺','❻'}; // base symbols for each typist will be able to change later
+        char[] baseSymbols = {'❶', '❷', '❸', '❹', '❺', '❻' }; // base symbols for each typist will be able to change later
         typists = new Typist[realNumOfSeats];
 
-        for(int i =0;i< realNumOfSeats;i++){
-            typists[i] = new Typist(baseSymbols[i], "Typist "+ (i+1),0.67);
+        for (int i = 0; i < realNumOfSeats; i++) {
+            typists[i] = new Typist(baseSymbols[i], "Typist " + (i + 1), 0.67);
 
             String[] typingStyleOptions = {" Touch Typist, Hunt & Peck, Phone Thumbs", "Voice-to-Text"};
-            int typingStyle = JOptionPane.showOptionDialog(null,"please pick a typing style", "Customisation", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE,null,typingStyleOptions,typingStyleOptions[0]);
-            if(typingStyle == 0){
+            int typingStyle = JOptionPane.showOptionDialog(null, "please pick a typing style", "Customisation", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, typingStyleOptions, typingStyleOptions[0]);
+            if (typingStyle == 0) {
                 typists[i].setAccuracy(0.95);
-            }
-            else if (typingStyle == 1) {
+            } else if (typingStyle == 1) {
                 typists[i].setAccuracy(0.69);
-            }
-            else if (typingStyle == 2) {
+            } else if (typingStyle == 2) {
                 typists[i].setAccuracy(0.50);
 
-            }
-            else if (typingStyle == 3) {
+            } else if (typingStyle == 3) {
                 typists[i].setAccuracy(0.75);
-            }
-            else {
+            } else {
                 System.out.println("No typing style selected , default of 0.67 applied");
             }
             // i need to add a burnout change too *Important
+            String[] keyboardType = {"Mechanical", "Membrane", "Touch screen", "Stenography"};
+            int boardType = JOptionPane.showOptionDialog(null, "Please pick a keyboard style", "Customisation screen", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, keyboardType, keyboardType[0]);
+            if (boardType == 0) {
+                race.setMISTYPE_BASE_CHANCE(0.5);
+                typists[i].setAccuracy(0.75); // speed adjustment
+            } else if (boardType == 1) { // issue im having is that idk if i should adjust the typist field for each typist or for the whole race as odk if im allowed to change the typist class, for now ill apple it to the whole race and make ill tweak it later
+                race.setMISTYPE_BASE_CHANCE(0.7);
+                typists[i].setAccuracy(0.65);
+            } else if (boardType == 2) {
+                race.setMISTYPE_BASE_CHANCE(0.55);
+                typists[i].setAccuracy(0.85);
+            } else if (boardType == 3) {
+                race.setMISTYPE_BASE_CHANCE(0.90);
+                typists[i].setAccuracy(0.55);
+            }
+            else {
+                System.out.println("Please enter a valid keyboard type");
 
-        }
-        race = new TypingRace(realAnswer);
-        for(int i =0;i < typists.length;i++) {
-            race.addTypist(typists[i],i + 1);
-        }
-
-        if(autoCorrect == true){
-            race.autoCorrectMethod();
-        }
-
-        for(int i = 0;i < typists.length;i++){
-            if(nightMode == true){
-                typists[i].setAccuracy(typists[i].getAccuracy()-0.1);
             }
         }
 
-        if(caffine == true){
+        race = new TypingRace(realAnswer);
+        for (int i = 0; i < typists.length; i++) {
+            race.addTypist(typists[i], i + 1);
+        }
+
+        if (autoCorrect == true) {
+            race.autoCorrectMethod();
+        }
+
+        for (int i = 0; i < typists.length; i++) {
+            if (nightMode == true) {
+                typists[i].setAccuracy(typists[i].getAccuracy() - 0.1);
+            }
+        }
+
+        if (caffine == true) {
             race.setCaffeineActivated();
         }
         Timer clock = new Timer(200, e -> {
             boolean finished = race.turn();
-            for(int i = 0;i<typists.length;i++){
+            for (int i = 0; i < typists.length; i++) {
                 typistProgress[i].setValue(typists[i].getProgress());
             }
             if (finished == true) {
                 ((Timer) e.getSource()).stop();
-                for(int i = 0;i < typists.length;i++){
-                    if(typists[i].getProgress() >= realAnswer){
+                for (int i = 0; i < typists.length; i++) {
+                    if (typists[i].getProgress() >= realAnswer) {
                         label.setText("the winner is: " + typists[i].getName());
                         frame.repaint();
                         break;
@@ -158,24 +174,24 @@ public class GuiSystem {
         clock.start();
     }
 
-    public void mainRace(){
+    public void mainRace() {
         frame.getContentPane().removeAll();
         frame.setLayout(new BorderLayout());
 
         JPanel panel = new JPanel();
         label = new JLabel(passageText);
         panel.add(label);
-        frame.add(panel,BorderLayout.NORTH);
+        frame.add(panel, BorderLayout.NORTH);
         JPanel keyboardPanel = new JPanel();
         keyboardPanel.setBackground(Color.black);
-        keyboardPanel.setPreferredSize(new Dimension(250,83));
+        keyboardPanel.setPreferredSize(new Dimension(250, 83));
         frame.add(keyboardPanel, BorderLayout.SOUTH);
 
 
         JPanel raceStuff = new JPanel();
-        raceStuff.setLayout(new GridLayout(1,typists.length));
+        raceStuff.setLayout(new GridLayout(1, typists.length));
         typistProgress = new JProgressBar[typists.length];
-        for(int i = 0;i<typists.length;i++){
+        for (int i = 0; i < typists.length; i++) {
             typistProgress[i] = new JProgressBar(JProgressBar.VERTICAL, realAnswer);
             typistProgress[i].setString(typists[i].getName());
             typistProgress[i].setStringPainted(true);
@@ -186,6 +202,4 @@ public class GuiSystem {
         frame.revalidate();
         frame.repaint();
     }
-
-
 }
