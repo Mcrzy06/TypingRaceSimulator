@@ -31,9 +31,9 @@ public class TypingRace
     private boolean caffeineActivated = false;
     private int BURNOUT_DURATION  = 3;
 
-    public void setMISTYPE_BASE_CHANCE(double newBaseChange){
+   /* public void setMISTYPE_BASE_CHANCE(double newBaseChange){
         MISTYPE_BASE_CHANCE = newBaseChange;
-    }
+    }*/
     public void setCaffeineActivated(){
         caffeineActivated = true;
     }
@@ -211,8 +211,7 @@ public class TypingRace
         }
 
         // Mistype check — the probability should reflect the typist's accuracy
-        if (Math.random() < (1 - theTypist.getAccuracy()) * MISTYPE_BASE_CHANCE)
-        {
+        if (Math.random() < (1 - theTypist.getAccuracy()) * theTypist.getmisstypeRates()){
             theTypist.slideBack(SLIDE_BACK_AMOUNT);
         }
 
@@ -223,6 +222,12 @@ public class TypingRace
             theTypist.burnOut(BURNOUT_DURATION);
         }
     }
+
+    public void wristSupportMechanic(){
+        BURNOUT_DURATION = BURNOUT_DURATION - 1;
+    }
+
+
 
     /**
      * Returns true if the given typist has completed the full passage.

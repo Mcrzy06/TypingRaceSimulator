@@ -1,4 +1,7 @@
 import javax.swing.*;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 
 public class GuiSystem {
@@ -7,8 +10,11 @@ public class GuiSystem {
     Typist[] typists;
     String passageText;
     private int realAnswer;
-    JLabel label;
+    //JLabel label;
+    JLabel winner;
+    JTextPane typistTracker;
     JProgressBar[] typistProgress;
+    Color[] progressBarColours;
 
 
     public GuiSystem() {
@@ -70,6 +76,7 @@ public class GuiSystem {
             }
         }
         // testing System.out.println(answer);
+        race = new TypingRace(realAnswer);
         String[] seats = {"2", "3", "4", "5", "6"};
         int numOfSeats = JOptionPane.showOptionDialog(null, "How many seats do you need", "Configuration screen", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, seats, seats[0]);
 
@@ -96,11 +103,12 @@ public class GuiSystem {
 
         char[] baseSymbols = {'❶', '❷', '❸', '❹', '❺', '❻' }; // base symbols for each typist will be able to change later
         typists = new Typist[realNumOfSeats];
+        progressBarColours = new Color[realNumOfSeats]; // creating the colour array for each typist picked
 
         for (int i = 0; i < realNumOfSeats; i++) {
             typists[i] = new Typist(baseSymbols[i], "Typist " + (i + 1), 0.67);
 
-            String[] typingStyleOptions = {" Touch Typist, Hunt & Peck, Phone Thumbs", "Voice-to-Text"};
+            String[] typingStyleOptions = {" Touch Typist"," Hunt & Peck", "Phone Thumbs", "Voice-to-Text"};
             int typingStyle = JOptionPane.showOptionDialog(null, "please pick a typing style", "Customisation", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, typingStyleOptions, typingStyleOptions[0]);
             if (typingStyle == 0) {
                 typists[i].setAccuracy(0.95);
@@ -118,25 +126,72 @@ public class GuiSystem {
             String[] keyboardType = {"Mechanical", "Membrane", "Touch screen", "Stenography"};
             int boardType = JOptionPane.showOptionDialog(null, "Please pick a keyboard style", "Customisation screen", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, keyboardType, keyboardType[0]);
             if (boardType == 0) {
-                race.setMISTYPE_BASE_CHANCE(0.5);
+                typists[i].setmisstypeRates(0.5);
                 typists[i].setAccuracy(0.75); // speed adjustment
             } else if (boardType == 1) { // issue im having is that idk if i should adjust the typist field for each typist or for the whole race as odk if im allowed to change the typist class, for now ill apple it to the whole race and make ill tweak it later
-                race.setMISTYPE_BASE_CHANCE(0.7);
+                typists[i].setmisstypeRates(0.7);
                 typists[i].setAccuracy(0.65);
             } else if (boardType == 2) {
-                race.setMISTYPE_BASE_CHANCE(0.55);
+                typists[i].setmisstypeRates(0.55);
                 typists[i].setAccuracy(0.85);
             } else if (boardType == 3) {
-                race.setMISTYPE_BASE_CHANCE(0.90);
+                typists[i].setmisstypeRates(0.90);
                 typists[i].setAccuracy(0.55);
-            }
+            } // changes made to typist class implemented
             else {
-                System.out.println("Please enter a valid keyboard type");
+                System.out.println("Please pick a valid keyboard type");
 
             }
+            //the typist can choose a symbol for their representation
+            String playerSymbolString = JOptionPane.showInputDialog("Please input your custom Symbol: ");
+            while (playerSymbolString == null || !playerSymbolString.matches(".")) {
+                playerSymbolString = JOptionPane.showInputDialog("This response is unaccepted, please try a new symbol: ");
+            }
+            char playerSymbol = playerSymbolString.charAt(0);
+            typists[i].setSymbol(playerSymbol);
+
+            //Colouring the progress bars
+            String colours[] = {"Red", "Green", "Blue", "Yellow", "Orange"};
+            int colourSpectrum = JOptionPane.showOptionDialog(null, "what Colour would you like your progess bar", "Customisation screen", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, colours, colours[0]);
+            if (colourSpectrum == 0) { // tried using a for loop to optimise but that fell apart so if /else wall it is
+                progressBarColours[i] = Color.red;
+            } else if (colourSpectrum == 1) {
+                progressBarColours[i] = Color.GREEN;
+            } else if (colourSpectrum == 2) {
+                progressBarColours[i] = Color.BLUE;
+            } else if (colourSpectrum == 3) {
+                progressBarColours[i] = Color.yellow;
+            } else if (colourSpectrum == 4) {
+                progressBarColours[i] = Color.ORANGE;
+            } else {
+                System.out.println("INVALID OPTION");
+            }
+
+            JCheckBox wristSupport = new JCheckBox();
+            wristSupport.setText("Wrist Support");
+            wristSupport.setFocusable(false);
+            JCheckBox energyDrink = new JCheckBox();
+            energyDrink.setText("Energy Drink");
+            energyDrink.setFocusable(false);
+            JCheckBox noiseCancellingHeadphones = new JCheckBox();
+            noiseCancellingHeadphones.setText("Noise Cancelling Headphones");
+            noiseCancellingHeadphones.setFocusable(false);
+
+            Object[] Accessories = {"Accessories: ", wristSupport, energyDrink, noiseCancellingHeadphones};
+            JOptionPane.showConfirmDialog(null, Accessories, "Accessories", JOptionPane.OK_CANCEL_OPTION);
+
+            boolean wristsupport = wristSupport.isSelected();
+            boolean energydrink = energyDrink.isSelected();
+            boolean noisecancellingheadphones = noiseCancellingHeadphones.isSelected();
+
+
+            if (wristsupport == true){
+                race.wristSupportMechanic();
+            }
+
         }
 
-        race = new TypingRace(realAnswer);
+
         for (int i = 0; i < typists.length; i++) {
             race.addTypist(typists[i], i + 1);
         }
@@ -159,11 +214,12 @@ public class GuiSystem {
             for (int i = 0; i < typists.length; i++) {
                 typistProgress[i].setValue(typists[i].getProgress());
             }
+            typistColourTracking();
             if (finished == true) {
                 ((Timer) e.getSource()).stop();
                 for (int i = 0; i < typists.length; i++) {
                     if (typists[i].getProgress() >= realAnswer) {
-                        label.setText("the winner is: " + typists[i].getName());
+                        winner.setText("the winner is: " + typists[i].getName());
                         frame.repaint();
                         break;
                     }
@@ -179,8 +235,12 @@ public class GuiSystem {
         frame.setLayout(new BorderLayout());
 
         JPanel panel = new JPanel();
-        label = new JLabel(passageText);
-        panel.add(label);
+        typistTracker = new JTextPane();
+        typistTracker.setText(passageText);
+        panel.add(typistTracker);
+
+        winner = new JLabel("");
+        panel.add(winner);
         frame.add(panel, BorderLayout.NORTH);
         JPanel keyboardPanel = new JPanel();
         keyboardPanel.setBackground(Color.black);
@@ -195,11 +255,25 @@ public class GuiSystem {
             typistProgress[i] = new JProgressBar(JProgressBar.VERTICAL, realAnswer);
             typistProgress[i].setString(typists[i].getName());
             typistProgress[i].setStringPainted(true);
+            typistProgress[i].setForeground(progressBarColours[i]);
             raceStuff.add(typistProgress[i]);
         }
         frame.add(raceStuff, BorderLayout.CENTER);
 
         frame.revalidate();
         frame.repaint();
+    }
+
+    public void typistColourTracking(){
+        StyledDocument styleSheet = typistTracker.getStyledDocument();
+        Style defaulted = typistTracker.addStyle("Default",null);
+        StyleConstants.setForeground(defaulted ,Color.BLACK);
+        styleSheet.setCharacterAttributes(0,passageText.length(),defaulted,true);
+
+        for(int i =0;i < typists.length;i++){
+            Style style = typistTracker.addStyle("Typist " + i,null);
+            StyleConstants.setForeground(style,progressBarColours[i]);
+            styleSheet.setCharacterAttributes(0,typists[i].getProgress(),style,true); // this doesn't even look good lmao im gonna redo it
+        }
     }
 }

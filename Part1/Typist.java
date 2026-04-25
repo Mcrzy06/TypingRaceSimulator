@@ -23,6 +23,7 @@ public class Typist
     private boolean hasBurnt;
     private int turns;
     private double typistAccuracy;
+    private double misstypeRate;
 
 
     // Constructor of class Typist
@@ -42,7 +43,17 @@ public class Typist
         this.turns = 0;
         this.charCount = 0;
         this.hasBurnt = false;
+        this.misstypeRate = 0;
     }
+    //Custom method to change misstypes between induvidual typists
+    public double getmisstypeRates(){
+        return misstypeRate;
+    }
+
+    public void setmisstypeRates(double newRate){
+        misstypeRate = newRate;
+    }
+
     /**
      * Sets this typist into a burnout state for a given number of turns.
      * A burnt-out typist cannot type until their burnout has worn off.
@@ -138,6 +149,7 @@ public class Typist
         this.charCount = 0;
         this.turns = 0;
         this.hasBurnt = false;
+        this.misstypeRate = 0;
     }
 
 
