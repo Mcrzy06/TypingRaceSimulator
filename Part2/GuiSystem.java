@@ -12,7 +12,7 @@ public class GuiSystem {
     private int realAnswer;
     //JLabel label;
     JLabel winner;
-    JTextPane typistTracker;
+    JTextPane[] typistTracker;
     JProgressBar[] typistProgress;
     Color[] progressBarColours;
 
@@ -186,7 +186,15 @@ public class GuiSystem {
 
 
             if (wristsupport == true){
-                race.wristSupportMechanic();
+                typists[i].setWristSupportMechanic();
+            }
+
+            if(noisecancellingheadphones == true){
+                typists[i].setmisstypeRates(typists[i].getmisstypeRates() - 0.1);
+            }
+
+            if(energydrink == true){
+                typists[i].setEnergyDrinkMechanic();
             }
 
         }
@@ -235,9 +243,13 @@ public class GuiSystem {
         frame.setLayout(new BorderLayout());
 
         JPanel panel = new JPanel();
-        typistTracker = new JTextPane();
-        typistTracker.setText(passageText);
-        panel.add(typistTracker);
+        typistTracker = new JTextPane[typists.length];
+        for(int j= 0; j<typists.length;j++){
+            typistTracker[j] = new JTextPane();
+            typistTracker[j].setText(passageText);
+            panel.add(typistTracker[j]);
+
+        }
 
         winner = new JLabel("");
         panel.add(winner);
@@ -249,7 +261,7 @@ public class GuiSystem {
 
 
         JPanel raceStuff = new JPanel();
-        raceStuff.setLayout(new GridLayout(1, typists.length));
+        raceStuff.setLayout(new GridLayout(2, typists.length));
         typistProgress = new JProgressBar[typists.length];
         for (int i = 0; i < typists.length; i++) {
             typistProgress[i] = new JProgressBar(JProgressBar.VERTICAL, realAnswer);
@@ -265,15 +277,15 @@ public class GuiSystem {
     }
 
     public void typistColourTracking(){
-        StyledDocument styleSheet = typistTracker.getStyledDocument();
-        Style defaulted = typistTracker.addStyle("Default",null);
-        StyleConstants.setForeground(defaulted ,Color.BLACK);
-        styleSheet.setCharacterAttributes(0,passageText.length(),defaulted,true);
+        for(int i =0;i<typists.length;i++) {
+            StyledDocument styleSheet = typistTracker[i].getStyledDocument();
+            Style defaulted = typistTracker[i].addStyle("Default", null);
+            StyleConstants.setForeground(defaulted, Color.BLACK);
+            styleSheet.setCharacterAttributes(0, passageText.length(), defaulted, true);
 
-        for(int i =0;i < typists.length;i++){
-            Style style = typistTracker.addStyle("Typist " + i,null);
-            StyleConstants.setForeground(style,progressBarColours[i]);
-            styleSheet.setCharacterAttributes(0,typists[i].getProgress(),style,true); // this doesn't even look good lmao im gonna redo it
+            Style style = typistTracker[i].addStyle("Typist " + i, null);
+            StyleConstants.setForeground(style, progressBarColours[i]);
+            styleSheet.setCharacterAttributes(0, typists[i].getProgress(), style, true); // this doesn't even look good lmao im gonna redo it
         }
     }
 }

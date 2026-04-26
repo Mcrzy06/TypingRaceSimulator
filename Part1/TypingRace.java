@@ -29,6 +29,7 @@ public class TypingRace
     private int SLIDE_BACK_AMOUNT   = 2;
     private int turnCount = 0;
     private boolean caffeineActivated = false;
+    private boolean eneryDrinkActivated = false;
     private int BURNOUT_DURATION  = 3;
 
    /* public void setMISTYPE_BASE_CHANCE(double newBaseChange){
@@ -36,6 +37,10 @@ public class TypingRace
     }*/
     public void setCaffeineActivated(){
         caffeineActivated = true;
+    }
+
+    public void setEneryDrinkActivated(){
+        eneryDrinkActivated = true;
     }
     public void autoCorrectMethod(){
         SLIDE_BACK_AMOUNT = SLIDE_BACK_AMOUNT /2;
@@ -197,6 +202,14 @@ public class TypingRace
 
     private void advanceTypist(Typist theTypist)
     {
+        if(theTypist.getEnergyDrinkMechanic() == true){
+            if(turnCount <= passageLength / 2){
+                theTypist.setAccuracy(theTypist.getAccuracy()+0.1);
+            }
+            else {
+                theTypist.setAccuracy(theTypist.getAccuracy()-0.1);
+            }
+        }
         if (theTypist.isBurntOut())
         {
             // Recovering from burnout — skip this turn
@@ -219,12 +232,13 @@ public class TypingRace
         // (probability scales with accuracy squared, capped at ~0.05)
         if (Math.random() < 0.05 * theTypist.getAccuracy() * theTypist.getAccuracy())
         {
-            theTypist.burnOut(BURNOUT_DURATION);
+            if(theTypist.getWristSupportMechanic() == true){
+                theTypist.burnOut(BURNOUT_DURATION - 1);
+            }
+            else {
+                theTypist.burnOut(BURNOUT_DURATION);
+            }
         }
-    }
-
-    public void wristSupportMechanic(){
-        BURNOUT_DURATION = BURNOUT_DURATION - 1;
     }
 
 
@@ -377,6 +391,7 @@ public class TypingRace
         if (seat6Typist != null && raceFinishedBy(seat6Typist)) {
             return true;
         }
+        turnCount += 1;
         return false;
     }
 }

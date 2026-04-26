@@ -23,7 +23,11 @@ public class Typist
     private boolean hasBurnt;
     private int turns;
     private double typistAccuracy;
+    //added variables
     private double misstypeRate;
+    private boolean energyDrinkMechanic;
+    private boolean wristSupportMechanic;
+    private int burntOutNumber;
 
 
     // Constructor of class Typist
@@ -44,6 +48,9 @@ public class Typist
         this.charCount = 0;
         this.hasBurnt = false;
         this.misstypeRate = 0;
+        this.energyDrinkMechanic = false;
+        this.wristSupportMechanic = false;
+        this.burntOutNumber = 0;
     }
     //Custom method to change misstypes between induvidual typists
     public double getmisstypeRates(){
@@ -52,6 +59,26 @@ public class Typist
 
     public void setmisstypeRates(double newRate){
         misstypeRate = newRate;
+    }
+
+    public void setEnergyDrinkMechanic(){
+        energyDrinkMechanic = true;
+    }
+
+    public boolean getEnergyDrinkMechanic(){
+        return energyDrinkMechanic;
+    }
+
+    public void setWristSupportMechanic() {
+        wristSupportMechanic = true;
+    }
+
+    public boolean getWristSupportMechanic() {
+        return wristSupportMechanic;
+    }
+
+    public int getBurntOutNumber(){
+        return burntOutNumber;
     }
 
     /**
@@ -64,6 +91,7 @@ public class Typist
     {
         hasBurnt = true;
         this.turns = turns;
+        burntOutNumber += 1;
     }
 
 
@@ -150,6 +178,8 @@ public class Typist
         this.turns = 0;
         this.hasBurnt = false;
         this.misstypeRate = 0;
+        this.energyDrinkMechanic = false;
+        this.burntOutNumber = 0;
     }
 
 
