@@ -9,7 +9,8 @@
  * @author (Momin)
  * @version (01/04/26)
  */
-public class Typist {
+public class Typist
+{
     // Fields of class Typist
     // Hint: you will need six fields. Think carefully about their types.
     // One of them tracks how far along the passage the typist has reached.
@@ -22,25 +23,62 @@ public class Typist {
     private boolean hasBurnt;
     private int turns;
     private double typistAccuracy;
+    //added variables
+    private double misstypeRate;
+    private boolean energyDrinkMechanic;
+    private boolean wristSupportMechanic;
+    private int burntOutNumber;
 
 
     // Constructor of class Typist
-
     /**
      * Constructor for objects of class Typist.
      * Creates a new typist with a given symbol, name, and accuracy rating.
      *
-     * @param typistSymbol   a single Unicode character representing this typist (e.g. '①', '②', '③')
-     * @param typistName     the name of the typist (e.g. "TURBOFINGERS")
+     * @param typistSymbol  a single Unicode character representing this typist (e.g. '①', '②', '③')
+     * @param typistName    the name of the typist (e.g. "TURBOFINGERS")
      * @param typistAccuracy the typist's accuracy rating, between 0.0 and 1.0
      */
-    public Typist(char typistSymbol, String typistName, double typistAccuracy) {
+    public Typist(char typistSymbol, String typistName, double typistAccuracy)
+    {
         this.typistSymbol = typistSymbol;
         this.typistName = typistName;
         this.typistAccuracy = typistAccuracy;
         this.turns = 0;
         this.charCount = 0;
         this.hasBurnt = false;
+        this.misstypeRate = 0.3;
+        this.energyDrinkMechanic = false;
+        this.wristSupportMechanic = false;
+        this.burntOutNumber = 0;
+    }
+    //Custom method to change misstypes between induvidual typists
+    public double getmisstypeRates(){
+        return misstypeRate;
+    }
+
+    public void setmisstypeRates(double newRate){
+        misstypeRate = newRate;
+    }
+
+    public void setEnergyDrinkMechanic(){
+        energyDrinkMechanic = true;
+    }
+
+    public boolean getEnergyDrinkMechanic(){
+        return energyDrinkMechanic;
+    }
+
+    public void setWristSupportMechanic() {
+        wristSupportMechanic = true;
+    }
+
+    public boolean getWristSupportMechanic() {
+        return wristSupportMechanic;
+    }
+
+    public int getBurntOutNumber(){
+        return burntOutNumber;
     }
 
     /**
@@ -49,9 +87,11 @@ public class Typist {
      *
      * @param turns the number of turns the burnout will last
      */
-    public void burnOut(int turns) {
+    public void burnOut(int turns)
+    {
         hasBurnt = true;
         this.turns = turns;
+        burntOutNumber += 1;
     }
 
 
@@ -60,9 +100,11 @@ public class Typist {
      * When the counter reaches zero, the typist recovers automatically.
      * Has no effect if the typist is not currently burnt out.
      */
-    public void recoverFromBurnout() {
+    public void recoverFromBurnout()
+    {
         turns -= 1;
-        if (turns <= 0) {
+        if (turns <= 0)
+        {
             hasBurnt = false;
         }
     }
@@ -73,7 +115,8 @@ public class Typist {
      *
      * @return accuracy as a double between 0.0 and 1.0
      */
-    public double getAccuracy() {
+    public double getAccuracy()
+    {
         return typistAccuracy;
     }
 
@@ -85,7 +128,8 @@ public class Typist {
      *
      * @return progress as a non-negative integer
      */
-    public int getProgress() {
+    public int getProgress()
+    {
         return charCount;
     }
 
@@ -95,7 +139,8 @@ public class Typist {
      *
      * @return the typist's name as a String
      */
-    public String getName() {
+    public String getName()
+    {
         return typistName;
     }
 
@@ -105,7 +150,8 @@ public class Typist {
      *
      * @return the typist's symbol as a char
      */
-    public char getSymbol() {
+    public char getSymbol()
+    {
         return typistSymbol;
     }
 
@@ -116,7 +162,8 @@ public class Typist {
      *
      * @return burnout turns remaining as a non-negative integer
      */
-    public int getBurnoutTurnsRemaining() {
+    public int getBurnoutTurnsRemaining()
+    {
         return turns;
     }
 
@@ -125,10 +172,14 @@ public class Typist {
      * Resets the typist to their initial state, ready for a new race.
      * Progress returns to zero, burnout is cleared entirely.
      */
-    public void resetToStart() {
+    public void resetToStart()
+    {
         this.charCount = 0;
         this.turns = 0;
         this.hasBurnt = false;
+        this.misstypeRate = 0;
+        this.energyDrinkMechanic = false;
+        this.burntOutNumber = 0;
     }
 
 
@@ -146,7 +197,8 @@ public class Typist {
      * Advances the typist forward by one character along the passage.
      * Should only be called when the typist is not burnt out.
      */
-    public void typeCharacter() {
+    public void typeCharacter()
+    {
         charCount += 1;
     }
 
@@ -157,9 +209,11 @@ public class Typist {
      *
      * @param amount the number of characters to slide back (must be positive)
      */
-    public void slideBack(int amount) {
+    public void slideBack(int amount)
+    {
         charCount = charCount - amount;
-        if (charCount < 0) {
+        if (charCount < 0)
+        {
             charCount = 0;
         }
     }
@@ -171,12 +225,18 @@ public class Typist {
      *
      * @param newAccuracy the new accuracy rating
      */
-    public void setAccuracy(double newAccuracy) {
-        if (newAccuracy < 0.0) {
+    public void setAccuracy(double newAccuracy)
+    {
+        if (newAccuracy < 0.0)
+        {
             this.typistAccuracy = 0.0;
-        } else if (newAccuracy > 1.0) {
+        }
+        else if (newAccuracy > 1.0)
+        {
             this.typistAccuracy = 1.0;
-        } else {
+        }
+        else
+        {
             this.typistAccuracy = newAccuracy;
         }
     }
@@ -187,9 +247,9 @@ public class Typist {
      *
      * @param newSymbol the new symbol character
      */
-    public void setSymbol(char newSymbol) {
+    public void setSymbol(char newSymbol)
+    {
         this.typistSymbol = newSymbol;
     }
-
 
 }

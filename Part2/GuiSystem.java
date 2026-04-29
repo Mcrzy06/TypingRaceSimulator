@@ -15,6 +15,7 @@ public class GuiSystem {
     JTextPane[] typistTracker;
     JProgressBar[] typistProgress;
     Color[] progressBarColours;
+    int raceTurns;
 
 
     public GuiSystem() {
@@ -29,7 +30,6 @@ public class GuiSystem {
     public static void main(String[] args) {
         GuiSystem gui = new GuiSystem();
         gui.startRaceGUI();
-
     }
 
     public void startRaceGUI() {
@@ -64,7 +64,7 @@ public class GuiSystem {
             answer = responses[input];
             if (answer.equals("Short")) {
                 realAnswer = 20;
-                passageText = "Birb is the largest bird";
+                passageText = "Birb is the biggest bird";
             } else if (answer.equals("Medium")) {
                 realAnswer = 40;
                 passageText = "The lion doesn't care about the opinons of sheep";
@@ -127,16 +127,16 @@ public class GuiSystem {
             int boardType = JOptionPane.showOptionDialog(null, "Please pick a keyboard style", "Customisation screen", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, keyboardType, keyboardType[0]);
             if (boardType == 0) {
                 typists[i].setmisstypeRates(0.5);
-                typists[i].setAccuracy(0.75); // speed adjustment
+                typists[i].setAccuracy(0.85); // speed adjustment
             } else if (boardType == 1) { // issue im having is that idk if i should adjust the typist field for each typist or for the whole race as odk if im allowed to change the typist class, for now ill apple it to the whole race and make ill tweak it later
                 typists[i].setmisstypeRates(0.7);
-                typists[i].setAccuracy(0.65);
+                typists[i].setAccuracy(0.75);
             } else if (boardType == 2) {
                 typists[i].setmisstypeRates(0.55);
                 typists[i].setAccuracy(0.85);
             } else if (boardType == 3) {
                 typists[i].setmisstypeRates(0.90);
-                typists[i].setAccuracy(0.55);
+                typists[i].setAccuracy(0.90);
             } // changes made to typist class implemented
             else {
                 System.out.println("Please pick a valid keyboard type");
@@ -219,12 +219,15 @@ public class GuiSystem {
         }
         Timer clock = new Timer(200, e -> {
             boolean finished = race.turn();
+            raceTurns +=1; // had to correct my mistake with =+
             for (int i = 0; i < typists.length; i++) {
                 typistProgress[i].setValue(typists[i].getProgress());
             }
             typistColourTracking();
             if (finished == true) {
                 ((Timer) e.getSource()).stop();
+                double raceTime = (raceTurns * 200)/60000.0;
+                statisticsDisplayScreen(raceTime);
                 for (int i = 0; i < typists.length; i++) {
                     if (typists[i].getProgress() >= realAnswer) {
                         winner.setText("the winner is: " + typists[i].getName());
@@ -286,6 +289,40 @@ public class GuiSystem {
             Style style = typistTracker[i].addStyle("Typist " + i, null);
             StyleConstants.setForeground(style, progressBarColours[i]);
             styleSheet.setCharacterAttributes(0, typists[i].getProgress(), style, true); // this doesn't even look good lmao im gonna redo it
+
+            int progress = Math.min(typists[i].getProgress(), passageText.length());
+            styleSheet.setCharacterAttributes(0, progress, style, true);
+
         }
+    }
+
+    public void statisticsDisplayScreen(double raceTime){
+        frame.getContentPane().removeAll();
+        frame.setLayout(new BorderLayout());
+        JLabel winnerLabel = new JLabel("");
+        for(int i = 0;i < typists.length;i++) {
+            if (typists[i].getProgress() >= realAnswer) {
+                winnerLabel.setText("the winner is: " + typists[i].getName());
+            }
+        }
+        frame.add(winnerLabel,BorderLayout.NORTH);
+
+
+        JPanel stats = new JPanel();
+        stats.setLayout(new GridLayout(1, typists.length));
+        for(int i = 0;i < typists.length;i++){
+            JTextPane statistics = new JTextPane();
+            double wordsPerMinute = (typists[i].getProgress()/5.0)/raceTime;
+
+            statistics.setText("Typist name: " + typists[i].getName() + "\nWords per Minute:" + String.format("%.1f",wordsPerMinute)
+            + " \nBurnout Count: " +typists[i].getBurntOutNumber() +
+                    " \nTypist accuracy: " + typists[i].getAccuracy());
+            stats.add(statistics);
+        }
+        frame.add(stats, BorderLayout.CENTER);
+
+
+        frame.revalidate();
+        frame.repaint();
     }
 }

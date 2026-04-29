@@ -15,18 +15,36 @@ import java.lang.Math;
  */
 public class TypingRace
 {
-    private int passageLength; // Total characters in the passage to type
+    private int passageLength;
     private Typist seat1Typist;
     private Typist seat2Typist;
     private Typist seat3Typist;
-    //I hardcoded the extra 2 typists so the program could run properly
+    private Typist seat4Typist;
+    private Typist seat5Typist;
+    private Typist seat6Typist;
 
     // Accuracy thresholds for mistype and burnout events
     // (Ty tuned these values "by feel". They may need adjustment.)
-    private static final double MISTYPE_BASE_CHANCE = 0.3;
-    private static final int    SLIDE_BACK_AMOUNT   = 2;
-    private static final int    BURNOUT_DURATION     = 3;
+    private double MISTYPE_BASE_CHANCE = 0.3;
+    private int SLIDE_BACK_AMOUNT   = 2;
+    private int turnCount = 0;
+    private boolean caffeineActivated = false;
+    private boolean eneryDrinkActivated = false;
+    private int BURNOUT_DURATION  = 3;
 
+   /* public void setMISTYPE_BASE_CHANCE(double newBaseChange){
+        MISTYPE_BASE_CHANCE = newBaseChange;
+    }*/
+    public void setCaffeineActivated(){
+        caffeineActivated = true;
+    }
+
+    public void setEneryDrinkActivated(){
+        eneryDrinkActivated = true;
+    }
+    public void autoCorrectMethod(){
+        SLIDE_BACK_AMOUNT = SLIDE_BACK_AMOUNT /2;
+    }
     /**
      * Constructor for objects of class TypingRace.
      * Sets up the race with a passage of the given length.
@@ -40,16 +58,12 @@ public class TypingRace
         seat1Typist = null;
         seat2Typist = null;
         seat3Typist = null;
+        seat4Typist = null;
+        seat5Typist = null;
+        seat6Typist = null;
     }
 
     public static void main(String[] args) {
-        Typist typist = new Typist('1', "testing typist", 0.5);
-        typist.typeCharacter();
-        typist.typeCharacter();
-        typist.typeCharacter();
-        typist.typeCharacter();
-        typist.typeCharacter();
-        System.out.println(typist.getProgress()); // this should lowk print 5
     }
 
     /**
@@ -72,6 +86,18 @@ public class TypingRace
         {
             seat3Typist = theTypist;
         }
+        else if (seatNumber == 4)
+        {
+            seat4Typist = theTypist;
+        }
+        else if (seatNumber == 5)
+        {
+            seat5Typist = theTypist;
+        }
+        else if (seatNumber == 6)
+        {
+            seat6Typist = theTypist;
+        }
         else
         {
             System.out.println("Cannot seat typist at seat " + seatNumber + " — there is no such seat.");
@@ -89,25 +115,31 @@ public class TypingRace
     public void startRace()
     {
         boolean finished = false;
-
         // Reset all typists to the start of the passage
         // (Ty was in a hurry here)
+
         if (seat1Typist != null) { seat1Typist.resetToStart(); }
         if (seat2Typist != null) { seat2Typist.resetToStart(); }
         if (seat3Typist != null) { seat3Typist.resetToStart(); }
-        // added saftey null checks so empty typist doesnt break the program also ty should really validate his work if he has time
+        if (seat4Typist != null) { seat4Typist.resetToStart(); }
+        if (seat5Typist != null) { seat5Typist.resetToStart(); }
+        if (seat6Typist != null) { seat6Typist.resetToStart(); }
+
 
 
         while (!finished)
         {
+            // Advance each typist by one turn
             if (seat1Typist != null) { advanceTypist(seat1Typist); }
             if (seat2Typist != null) { advanceTypist(seat2Typist); }
             if (seat3Typist != null) { advanceTypist(seat3Typist); }
+            if (seat4Typist != null) { advanceTypist(seat4Typist); }
+            if (seat5Typist != null) { advanceTypist(seat5Typist); }
+            if (seat6Typist != null) { advanceTypist(seat6Typist); }
 
-            // Print the current state of the race
+            turnCount += 1;
             printRace();
 
-            // Check if any typist has finished the passage
             if (seat1Typist != null && raceFinishedBy(seat1Typist)){
                 finished = true;
             }
@@ -117,8 +149,17 @@ public class TypingRace
             if (seat3Typist != null && raceFinishedBy(seat3Typist)) {
                 finished = true;
             }
+            if (seat4Typist != null && raceFinishedBy(seat4Typist)) {
+                finished = true;
+            }
+            if (seat5Typist != null && raceFinishedBy(seat5Typist)) {
+                finished = true;
+            }
+            if (seat6Typist != null && raceFinishedBy(seat6Typist)) {
+                finished = true;
+            }
 
-            // Wait 200ms between turns so the animation is visible
+
             try {
                 TimeUnit.MILLISECONDS.sleep(200);
             } catch (Exception e) {}
@@ -133,7 +174,15 @@ public class TypingRace
         } else if (seat3Typist != null && raceFinishedBy(seat3Typist) == true) {
             System.out.println("The winner is " + seat3Typist.getName());
         }
-        // printing the winners name is now done
+        else if (seat4Typist != null && raceFinishedBy(seat4Typist) == true) {
+            System.out.println("The winner is " + seat4Typist.getName());
+        }
+        else if (seat5Typist != null && raceFinishedBy(seat5Typist) == true) {
+            System.out.println("The winner is " + seat5Typist.getName());
+        }
+        else if (seat6Typist != null && raceFinishedBy(seat6Typist) == true) {
+            System.out.println("The winner is " + seat6Typist.getName());
+        }
 
     }
 
@@ -150,9 +199,17 @@ public class TypingRace
      *
      * @param theTypist the typist to advance
      */
+
     private void advanceTypist(Typist theTypist)
     {
-
+        if(theTypist.getEnergyDrinkMechanic() == true){
+            if(turnCount == 1){
+                theTypist.setAccuracy(theTypist.getAccuracy()+0.1);
+            }
+            else if(turnCount == passageLength / 2){
+                theTypist.setAccuracy(theTypist.getAccuracy()-0.1);
+            }
+        }
         if (theTypist.isBurntOut())
         {
             // Recovering from burnout — skip this turn
@@ -166,11 +223,8 @@ public class TypingRace
             theTypist.typeCharacter();
         }
 
-
         // Mistype check — the probability should reflect the typist's accuracy
-        //added a 1 so the bigger the accuracy the smaller the slide back
-        if (Math.random() < (1 - theTypist.getAccuracy()) * MISTYPE_BASE_CHANCE)
-        {
+        if (Math.random() < (1 - theTypist.getAccuracy()) * theTypist.getmisstypeRates()){
             theTypist.slideBack(SLIDE_BACK_AMOUNT);
         }
 
@@ -178,9 +232,16 @@ public class TypingRace
         // (probability scales with accuracy squared, capped at ~0.05)
         if (Math.random() < 0.05 * theTypist.getAccuracy() * theTypist.getAccuracy())
         {
-            theTypist.burnOut(BURNOUT_DURATION);
+            if(theTypist.getWristSupportMechanic() == true){
+                theTypist.burnOut(BURNOUT_DURATION - 1);
+            }
+            else {
+                theTypist.burnOut(BURNOUT_DURATION);
+            }
         }
     }
+
+
 
     /**
      * Returns true if the given typist has completed the full passage.
@@ -190,8 +251,7 @@ public class TypingRace
      */
     private boolean raceFinishedBy(Typist theTypist)
     {
-        // Ty was confident this condition was correct
-        if (theTypist.getProgress() >= passageLength) // jus made it >= to be safe
+        if (theTypist.getProgress() >= passageLength)
         {
             return true;
         }
@@ -208,7 +268,7 @@ public class TypingRace
      */
     private void printRace()
     {
-        System.out.print('\u000C'); // Clear terminal
+        System.out.print('\u000C');
 
 
         System.out.println("  TYPING RACE — passage length: " + passageLength + " chars");
@@ -224,8 +284,16 @@ public class TypingRace
         }
         if (seat3Typist != null) {
             printSeat(seat3Typist); System.out.println();
-        }//more null saftey checks added so getProgress can actually display the point at where the typist are
-
+        }
+        if (seat4Typist != null){
+            printSeat(seat4Typist); System.out.println();
+        }
+        if (seat5Typist != null){
+            printSeat(seat5Typist); System.out.println();
+        }
+        if (seat6Typist != null){
+            printSeat(seat6Typist); System.out.println();
+        }
 
         multiplePrint('=', passageLength + 3);
         System.out.println();
@@ -253,13 +321,12 @@ public class TypingRace
         System.out.print('|');
         multiplePrint(' ', spacesBefore);
 
-        // Always show the typist's symbol so they can be identified on screen.
-        // Append ~ when burnt out so the state is visible without hiding identity.
+
         System.out.print(theTypist.getSymbol());
         if (theTypist.isBurntOut())
         {
             System.out.print('~');
-            spacesAfter--; // symbol + ~ together take two characters
+            spacesAfter--;
         }
 
 
@@ -295,5 +362,36 @@ public class TypingRace
             System.out.print(aChar);
             i = i + 1;
         }
+    }
+
+    public boolean turn() {
+        // Advance each typist by one turn
+        if (seat1Typist != null) { advanceTypist(seat1Typist); }
+        if (seat2Typist != null) { advanceTypist(seat2Typist); }
+        if (seat3Typist != null) { advanceTypist(seat3Typist); }
+        if (seat4Typist != null) { advanceTypist(seat4Typist); }
+        if (seat5Typist != null) { advanceTypist(seat5Typist); }
+        if (seat6Typist != null) { advanceTypist(seat6Typist); }
+
+        if (seat1Typist != null && raceFinishedBy(seat1Typist)){
+            return true;
+        }
+        if (seat2Typist != null && raceFinishedBy(seat2Typist)){
+            return true;
+        }
+        if (seat3Typist != null && raceFinishedBy(seat3Typist)) {
+            return true;
+        }
+        if (seat4Typist != null && raceFinishedBy(seat4Typist)) {
+            return true;
+        }
+        if (seat5Typist != null && raceFinishedBy(seat5Typist)) {
+            return true;
+        }
+        if (seat6Typist != null && raceFinishedBy(seat6Typist)) {
+            return true;
+        }
+        turnCount += 1;
+        return false;
     }
 }
