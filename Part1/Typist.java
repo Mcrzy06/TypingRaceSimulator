@@ -1,5 +1,5 @@
 /**
- * Write a description of class Typist here.
+ * The class typist creates an typist object using 6 variables through a constructor, 3 are actually bases thorugh with this. and the others are initialised thorugh the contructor to values 0 or false
  *
  * Starter code generously abandoned by Ty Posaurus, your predecessor,
  * who typed with two fingers and considered that "good enough".
@@ -190,6 +190,5 @@ public class Typist {
     public void setSymbol(char newSymbol) {
         this.typistSymbol = newSymbol;
     }
-
 
 }
