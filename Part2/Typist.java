@@ -28,6 +28,7 @@ public class Typist
     private boolean energyDrinkMechanic;
     private boolean wristSupportMechanic;
     private int burntOutNumber;
+    private double baseTypedAmount;
 
 
     // Constructor of class Typist
@@ -39,7 +40,7 @@ public class Typist
      * @param typistName    the name of the typist (e.g. "TURBOFINGERS")
      * @param typistAccuracy the typist's accuracy rating, between 0.0 and 1.0
      */
-    public Typist(char typistSymbol, String typistName, double typistAccuracy)
+    public Typist(char typistSymbol, String typistName, double typistAccuracy, double baseTypedAmount)
     {
         this.typistSymbol = typistSymbol;
         this.typistName = typistName;
@@ -51,6 +52,7 @@ public class Typist
         this.energyDrinkMechanic = false;
         this.wristSupportMechanic = false;
         this.burntOutNumber = 0;
+        this.baseTypedAmount = baseTypedAmount;
     }
     //Custom method to change misstypes between induvidual typists
     public double getmisstypeRates(){
@@ -180,6 +182,7 @@ public class Typist
         this.misstypeRate = 0;
         this.energyDrinkMechanic = false;
         this.burntOutNumber = 0;
+        this.baseTypedAmount = this.typistAccuracy;
     }
 
 
@@ -250,6 +253,14 @@ public class Typist
     public void setSymbol(char newSymbol)
     {
         this.typistSymbol = newSymbol;
+    }
+
+    public void setTypistName(String name){
+        typistName = name;
+    }
+
+    public double getBaseTypedAmount(){
+        return baseTypedAmount;
     }
 
 }

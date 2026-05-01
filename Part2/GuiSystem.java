@@ -16,6 +16,11 @@ public class GuiSystem {
     JProgressBar[] typistProgress;
     Color[] progressBarColours;
     int raceTurns;
+    int[] leaderBoardStats;
+    double[] highestScore;
+    int winCountAndBurnouts[][];
+    double history[][];
+
 
 
     public GuiSystem() {
@@ -47,7 +52,6 @@ public class GuiSystem {
         JLabel header = new JLabel("Typing game");
         frame.add(header);
         header.setBounds(0, 83, 125, 15);
-
 
         String[] responses = {"Short", "Medium", "Long", "Custom"};
         int input = JOptionPane.showOptionDialog(null, "What length would you like", "Configuration screen", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, responses, responses[0]);
@@ -102,11 +106,26 @@ public class GuiSystem {
         boolean nightMode = nightShift.isSelected();
 
         char[] baseSymbols = {'❶', '❷', '❸', '❹', '❺', '❻' }; // base symbols for each typist will be able to change later
-        typists = new Typist[realNumOfSeats];
         progressBarColours = new Color[realNumOfSeats]; // creating the colour array for each typist picked
+        leaderBoardStats = new int[realNumOfSeats];
+        highestScore = new double[realNumOfSeats];
+        typists = new Typist[realNumOfSeats];
+        winCountAndBurnouts = new int[realNumOfSeats][2];
+        history = new double[realNumOfSeats][5];
+
+       // for(int i = 0;i < typists.length;i++){
+         //   typistsNames = JOptionPane.showInputDialog("Please enter your name,Typist: ");
+           // typists[i].setTypistName(typistsNames);
+
+        //}
+
 
         for (int i = 0; i < realNumOfSeats; i++) {
-            typists[i] = new Typist(baseSymbols[i], "Typist " + (i + 1), 0.67);
+            String name = JOptionPane.showInputDialog("Enter your name, typist: ");
+            if(name == null){
+                name = "typist "+ (i + 1); // jus incase anyone makes the mistake of pressing cancel or not writing anything
+            }
+            typists[i] = new Typist(baseSymbols[i], name, 0.67,0);
 
             String[] typingStyleOptions = {" Touch Typist"," Hunt & Peck", "Phone Thumbs", "Voice-to-Text"};
             int typingStyle = JOptionPane.showOptionDialog(null, "please pick a typing style", "Customisation", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, typingStyleOptions, typingStyleOptions[0]);
@@ -143,6 +162,7 @@ public class GuiSystem {
 
             }
             //the typist can choose a symbol for their representation
+           // JOptionPane.showOptionDialog(null, "Default or custom Symbol","Customisation screen", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE,null,baseSymbols,);
             String playerSymbolString = JOptionPane.showInputDialog("Please input your custom Symbol: ");
             while (playerSymbolString == null || !playerSymbolString.matches(".")) {
                 playerSymbolString = JOptionPane.showInputDialog("This response is unaccepted, please try a new symbol: ");
@@ -228,13 +248,6 @@ public class GuiSystem {
                 ((Timer) e.getSource()).stop();
                 double raceTime = (raceTurns * 200)/60000.0;
                 statisticsDisplayScreen(raceTime);
-                for (int i = 0; i < typists.length; i++) {
-                    if (typists[i].getProgress() >= realAnswer) {
-                        winner.setText("the winner is: " + typists[i].getName());
-                        frame.repaint();
-                        break;
-                    }
-                }
             }
         });
         mainRace();
@@ -267,7 +280,7 @@ public class GuiSystem {
         raceStuff.setLayout(new GridLayout(2, typists.length));
         typistProgress = new JProgressBar[typists.length];
         for (int i = 0; i < typists.length; i++) {
-            typistProgress[i] = new JProgressBar(JProgressBar.VERTICAL, realAnswer);
+            typistProgress[i] = new JProgressBar(JProgressBar.VERTICAL, 0,realAnswer);
             typistProgress[i].setString(typists[i].getName());
             typistProgress[i].setStringPainted(true);
             typistProgress[i].setForeground(progressBarColours[i]);
@@ -313,15 +326,82 @@ public class GuiSystem {
         for(int i = 0;i < typists.length;i++){
             JTextPane statistics = new JTextPane();
             double wordsPerMinute = (typists[i].getProgress()/5.0)/raceTime;
+            double changeInAccuracy = typists[i].getAccuracy() - typists[i].getBaseTypedAmount();
 
-            statistics.setText("Typist name: " + typists[i].getName() + "\nWords per Minute:" + String.format("%.1f",wordsPerMinute)
+            if(wordsPerMinute > highestScore[i]){
+                highestScore[i] = wordsPerMinute;
+            }
+
+            history[i][raceTurns < 5 ? raceTurns : 4]= wordsPerMinute;
+            if(typists[i].getProgress() >= realAnswer){
+                winCountAndBurnouts[i][0] += 1;
+            }
+            else{
+                winCountAndBurnouts[i][0] += 0;
+            }
+
+            if(typists[i].getProgress() == 0){
+                winCountAndBurnouts[i][0] += 1;
+            }
+            else{
+                winCountAndBurnouts[i][0] += 0;
+            }
+            String badgeName = "";
+            if(winCountAndBurnouts[i][0] >= 3){
+                badgeName = "Speed demon";
+            }
+
+            if(winCountAndBurnouts[i][0] >= 5){
+                badgeName = "Iron fingers";
+            }
+
+            statistics.setText("Typist name: " + typists[i].getName() + "\nWords per Minute:" + String.format("%.1f",wordsPerMinute) + "\nPersonal Best:" + String.format("%.1f",highestScore[i])
             + " \nBurnout Count: " +typists[i].getBurntOutNumber() +
-                    " \nTypist accuracy: " + typists[i].getAccuracy());
+                    " \nTypist accuracy: " + typists[i].getAccuracy() + " \nAccuracy change: " + String.format("%.1f",changeInAccuracy) + "\nBadges" + badgeName);
             stats.add(statistics);
         }
         frame.add(stats, BorderLayout.CENTER);
+        JButton restartButton = new JButton();
+        restartButton.setText("Restart typing simulator");
+        restartButton.addActionListener(e -> setupScreen());
+        //I should really comment my thoughts/logic more so here we go, For the leaderBoard in statisticsDisplayScreen i need to loop through the total player scores for each player throughout the games and then ill add that all up together and display it on a new pannel, ill use if and else statements to see who has the highest score so the leaderboard can be updated. I think thats the plan for now let me see how it goes. Also before i forget the winner gets 3 points second place gets 2 and everyone else gets 1 if they finish.
 
+        for(int i =0;i<typists.length;i++) {
+            if (typists[i].getProgress() >= realAnswer) {
+                leaderBoardStats[i] += 3; //made a mistake this should be 3 not 1
+            } else {
+                int setPoint = 0;
+                boolean first = true;
+                if (first == true) {
+                    for (int j = 0; j < typists.length; j++) {
+                        if (typists[j].getProgress() < realAnswer && typists[j].getProgress() > setPoint) {
+                            setPoint = typists[j].getProgress();
+                        }
+                    }
+                    if (typists[i].getProgress() == setPoint) {
+                        leaderBoardStats[i] += 2; // second place
+                    } else {
+                        leaderBoardStats[i] += 1; //everybody else
+                    }
+                }
+            }
+        }
 
+        JPanel lBP = new JPanel();
+        lBP.setLayout(new GridLayout(typists.length + 1, 1));
+        JLabel tittle = new JLabel("",JLabel.CENTER);
+        tittle.setText("LEADERBOARD");
+        lBP.add(tittle);
+
+        for(int leaderboardCount = 0;leaderboardCount<typists.length;leaderboardCount++){
+            JTextPane content = new JTextPane();
+            content.setText(typists[leaderboardCount].getName() + "\nPoints: "+leaderBoardStats[leaderboardCount]);
+            lBP.add(content);
+        }
+        // i need to make sure the highest score/personal bets is found , ill run the program again from a reply button(prolly easiest way to do that is a JButton) then ill compare the personal best which will be set for each typist after the race(first one) and then after that ill compare that with the next races(each typists) personal best and then display the new personal best.
+
+        frame.add(restartButton, BorderLayout.WEST);
+        frame.add(lBP, BorderLayout.SOUTH);
         frame.revalidate();
         frame.repaint();
     }
